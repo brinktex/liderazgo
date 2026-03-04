@@ -393,6 +393,37 @@ div.addEventListener('click', () => {
                 e.preventDefault();
             }
         });
+        // --- Soporte para celular (swipe) ---
+let touchStartX = 0;
+let touchStartY = 0;
+
+const gameContainer = document.getElementById('2048-container');
+
+gameContainer.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+});
+
+gameContainer.addEventListener('touchend', (e) => {
+    if (document.getElementById('game-2048').classList.contains('hidden')) return;
+
+    let touchEndX = e.changedTouches[0].clientX;
+    let touchEndY = e.changedTouches[0].clientY;
+
+    let dx = touchEndX - touchStartX;
+    let dy = touchEndY - touchStartY;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 30) move('right');
+        else if (dx < -30) move('left');
+    } else {
+        if (dy > 30) move('down');
+        else if (dy < -30) move('up');
+    }
+
+    addRandomTile();
+    draw2048();
+});
 
         function move(direction) {
             // Lógica de movimiento simplificada (Deslizar y combinar)
