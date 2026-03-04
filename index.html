@@ -218,8 +218,13 @@
                 div.innerHTML = `<span class="text-3xl mb-1">${food.icon}</span> ${food.name}`;
                 div.dataset.id = food.id;
                 div.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', food.id);
-                });
+    e.dataTransfer.setData('text/plain', food.id);
+});
+
+// Soporte para celular (toque)
+div.addEventListener('click', () => {
+    addFoodToPlate(food.id);
+});
                 inventory.appendChild(div);
             });
 
