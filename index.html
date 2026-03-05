@@ -2,470 +2,287 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zona Vital - Salud Escolar</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
+<title>2048 Superalimentos</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
 
 body{
-font-family:'Poppins',sans-serif;
+font-family:Arial;
 background:#f0fdf4;
-overflow-x:hidden;
+display:flex;
+flex-direction:column;
+align-items:center;
+margin-top:40px;
 }
 
-.gradient-bg{
-background:linear-gradient(135deg,#22c55e 0%,#10b981 100%);
+h1{
+color:#16a34a;
 }
 
-.card-shadow{
-box-shadow:0 10px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);
-}
-
-.drop-zone{
-border:3px dashed #cbd5e1;
-transition:.3s;
-}
-
-.drop-zone.active{
-border-color:#22c55e;
-background:#f0fdf4;
-transform:scale(1.02);
-}
-
-.grid-container{
+#game{
 display:grid;
-grid-template-columns:repeat(4,1fr);
+grid-template-columns:repeat(4,90px);
 gap:10px;
 background:#bbada0;
 padding:10px;
-border-radius:8px;
+border-radius:10px;
 }
 
 .tile{
-aspect-ratio:1/1;
-background:#cdc1b4;
-border-radius:4px;
+width:90px;
+height:90px;
 display:flex;
 align-items:center;
 justify-content:center;
+font-size:35px;
 font-weight:bold;
-font-size:1.2rem;
+background:#cdc1b4;
+border-radius:6px;
 }
 
-.tile-2{background:#eee4da;color:#776e65}
-.tile-4{background:#ede0c8;color:#776e65}
-.tile-8{background:#f2b179;color:white}
-.tile-16{background:#f59563;color:white}
-.tile-32{background:#f67c5f;color:white}
-.tile-64{background:#f65e3b;color:white}
-.tile-128{background:#edcf72;color:white}
-.tile-256{background:#edcc61;color:white}
-
-.animate-pop{
-animation:pop .2s ease;
+.score{
+margin:20px;
+font-size:20px;
 }
 
-@keyframes pop{
-0%{transform:scale(.8)}
-100%{transform:scale(1)}
-}
 </style>
 </head>
 
-<body class="min-h-screen text-slate-800">
+<body>
 
-<!-- Pantalla Inicio -->
-<section id="welcome-screen" class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+<h1>2048 Superalimentos</h1>
 
-<div class="max-w-3xl w-full bg-white rounded-3xl p-8 card-shadow border-t-8 border-green-500">
-
-<h1 class="text-5xl font-extrabold text-green-600 mb-2">ZONA VITAL</h1>
-
-<p class="text-xl text-slate-500 mb-8 font-semibold uppercase tracking-widest">
-Semana 5: Micro Campaña de Salud
-</p>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left mb-10 bg-slate-50 p-6 rounded-2xl">
-
-<div>
-<p class="text-sm text-slate-400 font-bold uppercase">Integrantes</p>
-<p class="text-lg font-semibold">Indra Yépez</p>
-<p class="text-lg font-semibold">Britany Sánchez</p>
+<div class="score">
+Puntos: <span id="score">0</span>
 </div>
 
-<div>
-<p class="text-sm text-slate-400 font-bold uppercase">Materia</p>
-<p class="text-lg font-semibold">Liderazgo Creativo y Resiliente</p>
-</div>
-
-<div>
-<p class="text-sm text-slate-400 font-bold uppercase">Profesor</p>
-<p class="text-lg font-semibold">Rafael Martínez Saldívar</p>
-</div>
-
-<div>
-<p class="text-sm text-slate-400 font-bold uppercase">Escuela</p>
-<p class="text-lg font-semibold">Instituto del Valle de Apatzingán</p>
-</div>
-
-</div>
-
-<button onclick="showGame('plate')" class="gradient-bg text-white px-8 py-4 rounded-full font-bold text-xl hover:scale-105 transition-transform shadow-lg">
-¡COMENZAR CAMPAÑA!
-</button>
-
-</div>
-</section>
-
-
-<!-- Juego Plato -->
-<section id="plate-game" class="hidden min-h-screen p-6 max-w-5xl mx-auto">
-
-<div class="text-center mb-8">
-<h2 class="text-3xl font-bold text-green-700">Arma tu Almuerzo Ideal</h2>
-<p class="text-slate-600">Arrastra alimentos al plato.</p>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-<div class="bg-white p-6 rounded-2xl card-shadow overflow-y-auto max-h-[600px]">
-
-<h3 class="font-bold text-lg mb-4 text-slate-500 border-b pb-2">
-Opciones
-</h3>
-
-<div id="food-inventory" class="grid grid-cols-2 gap-4"></div>
-
-</div>
-
-<div class="lg:col-span-2 flex flex-col items-center">
-
-<div id="plate"
-class="w-full aspect-square max-w-[450px] bg-white rounded-full card-shadow drop-zone flex flex-wrap content-center justify-center p-8 gap-4">
-</div>
-
-<div class="mt-8 w-full bg-white p-6 rounded-2xl card-shadow">
-
-<div class="flex justify-between mb-2">
-<span class="font-bold">Nivel de Salud</span>
-<span id="health-score" class="text-2xl font-black text-green-600">0%</span>
-</div>
-
-<div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden">
-<div id="health-bar" class="bg-green-500 h-full" style="width:0%"></div>
-</div>
-
-<p id="feedback-text" class="mt-4 text-center italic text-slate-600">
-Agrega alimentos
-</p>
-
-</div>
-
-<div class="flex gap-4 mt-6">
-<button onclick="resetPlate()" class="bg-slate-200 px-6 py-2 rounded-xl font-bold">
-Reiniciar
-</button>
-
-<button onclick="finishPlate()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">
-Siguiente
-</button>
-</div>
-
-</div>
-</div>
-</section>
-
-
-<!-- Juego 2048 -->
-<section id="game-2048" class="hidden min-h-screen p-6 flex flex-col items-center justify-center">
-
-<h2 class="text-3xl font-bold text-orange-600 italic mb-4">
-Reto 2048
-</h2>
-
-<div class="bg-white px-4 py-2 rounded-xl shadow mb-4">
-Puntos: <span id="score-2048">0</span>
-</div>
-
-<div id="2048-container" class="grid-container w-full max-w-[400px]"></div>
-
-<div class="mt-8 flex gap-4">
-<button onclick="showGame('plate')" class="bg-slate-200 px-6 py-2 rounded-xl font-bold">
-Volver
-</button>
-
-<button onclick="showFinal()" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold">
-Finalizar
-</button>
-</div>
-
-</section>
-
-
-<!-- Pantalla final -->
-<section id="final-screen" class="hidden min-h-screen flex flex-col items-center justify-center text-center p-6">
-
-<div class="max-w-2xl bg-white rounded-3xl p-10 card-shadow">
-
-<h2 class="text-4xl font-extrabold text-green-700 mb-4">
-¡Misión Cumplida!
-</h2>
-
-<p class="text-xl text-slate-600 mb-8">
-Elegir alimentos saludables mejora tu energía.
-</p>
-
-<button onclick="location.reload()" class="bg-slate-800 text-white px-8 py-3 rounded-full font-bold">
-Reiniciar
-</button>
-
-</div>
-</section>
-
+<div id="game"></div>
 
 <script>
 
-const foods=[
-{id:1,name:'Ensalada',health:25,icon:'🥗'},
-{id:2,name:'Arroz',health:15,icon:'🍚'},
-{id:3,name:'Pollo',health:20,icon:'🍗'},
-{id:4,name:'Agua',health:20,icon:'💧'},
-{id:5,name:'Manzana',health:15,icon:'🍎'},
-{id:6,name:'Refresco',health:-20,icon:'🥤'},
-{id:7,name:'Papas',health:-15,icon:'🍟'},
-{id:8,name:'Pizza',health:-10,icon:'🍕'},
-{id:9,name:'Dulces',health:-15,icon:'🍬'}
-];
+const size=4
 
-let selectedFoods=[];
+let board=[]
+let score=0
 
-function init(){
+const foods={
+2:"🍎",
+4:"🥑",
+8:"🥦",
+16:"🫐",
+32:"🍊",
+64:"🥩",
+128:"🥗",
+256:"🏆"
+}
 
-const inventory=document.getElementById("food-inventory");
+function startGame(){
 
-foods.forEach(food=>{
+board=Array(size).fill().map(()=>Array(size).fill(0))
 
-let div=document.createElement("div");
+score=0
 
-div.className="p-3 bg-slate-50 rounded-xl border cursor-grab text-center";
+addTile()
+addTile()
 
-div.draggable=true;
-
-div.innerHTML=`<span class="text-3xl">${food.icon}</span><br>${food.name}`;
-
-div.dataset.id=food.id;
-
-div.addEventListener("dragstart",(e)=>{
-e.dataTransfer.setData("text/plain",food.id);
-});
-
-div.onclick=()=>{
-addFoodToPlate(food.id);
-};
-
-inventory.appendChild(div);
-
-});
-
-const plate=document.getElementById("plate");
-
-plate.addEventListener("dragover",(e)=>{
-e.preventDefault();
-e.dataTransfer.dropEffect="move";
-plate.classList.add("active");
-});
-
-plate.addEventListener("dragleave",()=>{
-plate.classList.remove("active");
-});
-
-plate.addEventListener("drop",(e)=>{
-e.preventDefault();
-plate.classList.remove("active");
-const id=e.dataTransfer.getData("text/plain");
-addFoodToPlate(id);
-});
+draw()
 
 }
 
-function addFoodToPlate(id){
+function addTile(){
 
-if(selectedFoods.length>=6){
-alert("Plato lleno");
-return;
-}
-
-const food=foods.find(f=>f.id==id);
-
-selectedFoods.push(food);
-
-renderPlate();
-
-updateScore();
-
-}
-
-function renderPlate(){
-
-const plate=document.getElementById("plate");
-
-plate.innerHTML="";
-
-selectedFoods.forEach((food,index)=>{
-
-let item=document.createElement("div");
-
-item.className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl shadow";
-
-item.innerHTML=food.icon;
-
-item.onclick=()=>{
-selectedFoods.splice(index,1);
-renderPlate();
-updateScore();
-};
-
-plate.appendChild(item);
-
-});
-
-}
-
-function updateScore(){
-
-let score=0;
-
-selectedFoods.forEach(f=>score+=f.health);
-
-score=Math.max(0,Math.min(100,score));
-
-document.getElementById("health-score").innerText=score+"%";
-
-document.getElementById("health-bar").style.width=score+"%";
-
-}
-
-function resetPlate(){
-selectedFoods=[];
-renderPlate();
-updateScore();
-}
-
-function showGame(game){
-
-["welcome-screen","plate-game","game-2048","final-screen"].forEach(id=>{
-document.getElementById(id).classList.add("hidden");
-});
-
-if(game==="plate"){
-document.getElementById("plate-game").classList.remove("hidden");
-}
-
-if(game==="2048"){
-document.getElementById("game-2048").classList.remove("hidden");
-setTimeout(init2048,100);
-}
-
-}
-
-function finishPlate(){
-
-if(selectedFoods.length<3){
-alert("Selecciona al menos 3 alimentos");
-return;
-}
-
-showGame("2048");
-
-}
-
-function showFinal(){
-
-document.getElementById("game-2048").classList.add("hidden");
-
-document.getElementById("final-screen").classList.remove("hidden");
-
-}
-
-let board=[];
-let score2048=0;
-const size=4;
-
-function init2048(){
-
-board=Array(size).fill().map(()=>Array(size).fill(0));
-
-score2048=0;
-
-addRandomTile();
-addRandomTile();
-
-draw2048();
-
-}
-
-function addRandomTile(){
-
-let empty=[];
+let empty=[]
 
 for(let r=0;r<size;r++){
 for(let c=0;c<size;c++){
-if(board[r][c]===0)empty.push({r,c});
+if(board[r][c]==0){
+empty.push({r,c})
 }
 }
-
-if(empty.length>0){
-
-let {r,c}=empty[Math.floor(Math.random()*empty.length)];
-
-board[r][c]=Math.random()<0.9?2:4;
-
 }
 
-}
+if(empty.length===0) return
 
-function draw2048(){
+let spot=empty[Math.floor(Math.random()*empty.length)]
 
-const container=document.getElementById("2048-container");
-
-container.innerHTML="";
-
-board.forEach(row=>{
-row.forEach(cell=>{
-
-let tile=document.createElement("div");
-
-tile.className=`tile tile-${cell}`;
-
-tile.innerHTML=cell||"";
-
-container.appendChild(tile);
-
-});
-});
-
-document.getElementById("score-2048").innerText=score2048;
+board[spot.r][spot.c]=Math.random()<0.9?2:4
 
 }
 
-window.addEventListener("keydown",(e)=>{
+function draw(){
 
-if(document.getElementById("game-2048").classList.contains("hidden"))return;
+const game=document.getElementById("game")
 
-if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){
+game.innerHTML=""
 
-addRandomTile();
+for(let r=0;r<size;r++){
+for(let c=0;c<size;c++){
 
-draw2048();
+let tile=document.createElement("div")
+
+tile.className="tile"
+
+let value=board[r][c]
+
+tile.innerHTML=value?foods[value]:""
+
+game.appendChild(tile)
+
+}
+}
+
+document.getElementById("score").innerText=score
 
 }
 
-});
+function slide(row){
 
-window.addEventListener("load",init);
+row=row.filter(v=>v)
+
+for(let i=0;i<row.length-1;i++){
+
+if(row[i]==row[i+1]){
+
+row[i]*=2
+
+score+=row[i]
+
+row.splice(i+1,1)
+
+}
+
+}
+
+while(row.length<size){
+row.push(0)
+}
+
+return row
+
+}
+
+function moveLeft(){
+
+for(let r=0;r<size;r++){
+
+board[r]=slide(board[r])
+
+}
+
+}
+
+function moveRight(){
+
+for(let r=0;r<size;r++){
+
+board[r]=slide(board[r].reverse()).reverse()
+
+}
+
+}
+
+function moveUp(){
+
+for(let c=0;c<size;c++){
+
+let col=[board[0][c],board[1][c],board[2][c],board[3][c]]
+
+col=slide(col)
+
+for(let r=0;r<size;r++){
+board[r][c]=col[r]
+}
+
+}
+
+}
+
+function moveDown(){
+
+for(let c=0;c<size;c++){
+
+let col=[board[0][c],board[1][c],board[2][c],board[3][c]].reverse()
+
+col=slide(col).reverse()
+
+for(let r=0;r<size;r++){
+board[r][c]=col[r]
+}
+
+}
+
+}
+
+document.addEventListener("keydown",e=>{
+
+let moved=true
+
+switch(e.key){
+
+case "ArrowLeft":
+moveLeft()
+break
+
+case "ArrowRight":
+moveRight()
+break
+
+case "ArrowUp":
+moveUp()
+break
+
+case "ArrowDown":
+moveDown()
+break
+
+default:
+moved=false
+
+}
+
+if(moved){
+
+addTile()
+
+draw()
+
+}
+
+})
+
+/* soporte swipe celular */
+
+let startX=0
+let startY=0
+
+document.addEventListener("touchstart",e=>{
+startX=e.touches[0].clientX
+startY=e.touches[0].clientY
+})
+
+document.addEventListener("touchend",e=>{
+
+let dx=e.changedTouches[0].clientX-startX
+let dy=e.changedTouches[0].clientY-startY
+
+if(Math.abs(dx)>Math.abs(dy)){
+
+if(dx>30) moveRight()
+if(dx<-30) moveLeft()
+
+}else{
+
+if(dy>30) moveDown()
+if(dy<-30) moveUp()
+
+}
+
+addTile()
+draw()
+
+})
+
+startGame()
 
 </script>
 
